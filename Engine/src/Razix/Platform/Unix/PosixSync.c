@@ -37,7 +37,23 @@ void rz_critical_section_destroy(rz_critical_section* cs)
 
 void rz_critical_section_lock(rz_critical_section* cs)
 {
+    /*
+     * pthread mutex is not always adaptive!!!
+     * On glibc, you need PTHREAD_MUTEX_ADAPTIVE_NP for this. This is a glibc extension.
+     * https://sourceware.org/git?p=glibc.git;a=blob;f=nptl/pthread_mutex_lock.c;h=a697f2b6ca8dfa9e4557ab3f44b87bc5ceeec014;hb=HEAD#l83
+     * On MacOS it is adaptive if the environment variable PTHREAD_MUTEX_ADAPTIVE_SPIN is set to 1,
+     * or the system decides that is should be adaptive at process initialization time.
+     * https://github.com/apple/darwin-libpthread/blob/2b46cbcc56ba33791296cd9714b2c90dae185ec7/src/pthread_mutex.c#L91
+     * */
     pthread_mutex_t* nativeMutex = (pthread_mutex_t*) cs->m_Internal.buffer;
+
+    for (uint32_t i = 0; i < cs->m_SpinCount; ++i) {
+        if (!pthread_mutex_trylock(nativeMutex))
+            return;
+        // spin on it and just try to lock before falling back to OS primitive
+        RAZIX_BUSY_WAIT();
+    }
+
     pthread_mutex_lock(nativeMutex);
 }
 
