@@ -37,6 +37,7 @@ void rz_critical_section_destroy(rz_critical_section* cs)
 
 void rz_critical_section_lock(rz_critical_section* cs)
 {
+    pthread_mutex_t* nativeMutex = (pthread_mutex_t*) cs->m_Internal.buffer;
     pthread_mutex_lock(nativeMutex);
 }
 
