@@ -65,11 +65,11 @@ void rz_conditional_var_broadcast(rz_cond_var* cv)
 
 void rz_conditional_var_wait(rz_cond_var* cv, rz_critical_section* cs)
 {
-    SleepConditionVariableSRW((CONDITION_VARIABLE*) &cv->m_Internal.buffer, (PSRWLOCK) &cs->m_Internal.buffer, INFINITE);
+    SleepConditionVariableSRW((CONDITION_VARIABLE*) &cv->m_Internal.buffer, (PSRWLOCK) &cs->m_Internal.buffer, INFINITE, 0);
 }
 
 void rz_conditional_var_wait_until(rz_cond_var* cv, rz_critical_section* cs, u32 timeout_ms)
 {
-    SleepConditionVariableSRW((CONDITION_VARIABLE*) &cv->m_Internal.buffer, (PSRWLOCK) &cs->m_Internal.buffer, (DWORD) timeout_ms);
+    SleepConditionVariableSRW((CONDITION_VARIABLE*) &cv->m_Internal.buffer, (PSRWLOCK) &cs->m_Internal.buffer, (DWORD) timeout_ms, 0);
 }
 #endif
