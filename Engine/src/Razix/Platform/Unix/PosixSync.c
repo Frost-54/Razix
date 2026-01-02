@@ -37,15 +37,6 @@ void rz_critical_section_destroy(rz_critical_section* cs)
 
 void rz_critical_section_lock(rz_critical_section* cs)
 {
-    pthread_mutex_t* nativeMutex = (pthread_mutex_t*) cs->m_Internal.buffer;
-
-    for (uint32_t i = 0; i < cs->m_SpinCount; ++i) {
-        if (!pthread_mutex_trylock(nativeMutex))
-            return;
-        // spin on it and just try to lock before falling back to OS primitive
-        RAZIX_BUSY_WAIT();
-    }
-
     pthread_mutex_lock(nativeMutex);
 }
 
